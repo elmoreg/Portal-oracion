@@ -5,9 +5,11 @@ namespace Tests\Feature;
 use App\Enums\MessageAuthorType;
 use App\Enums\PrayerRequestStatus;
 use App\Enums\UserRole;
+use App\Livewire\PrayerChat;
 use App\Models\PrayerRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Livewire\Volt\Volt;
 use Tests\TestCase;
 
@@ -137,5 +139,71 @@ class PrayerRequestFlowTest extends TestCase
 
         $this->assertSame(1, $prayerRequestA->messages()->count());
         $this->assertSame(0, $prayerRequestB->messages()->count());
+    }
+
+    public function test_anonymous_chat_message_requires_a_name(): void
+    {
+        $prayerRequest = PrayerRequest::factory()->create(['requester_name' => null]);
+
+        Livewire::test(PrayerChat::class, [
+            'prayerRequest' => $prayerRequest,
+            'viewerRole' => MessageAuthorType::Requester,
+            'viewerUserId' => null,
+            'viewerName' => null,
+        ])
+            ->set('authorName', '')
+            ->set('body', 'Gracias por orar.')
+            ->call('sendMessage')
+            ->assertHasErrors(['authorName' => 'required']);
+
+        $this->assertSame(0, $prayerRequest->messages()->count());
+    }
+
+    public function test_anonymous_chat_message_stores_the_given_name(): void
+    {
+        $prayerRequest = PrayerRequest::factory()->create(['requester_name' => null]);
+
+        Livewire::test(PrayerChat::class, [
+            'prayerRequest' => $prayerRequest,
+            'viewerRole' => MessageAuthorType::Requester,
+            'viewerUserId' => null,
+            'viewerName' => null,
+        ])
+            ->set('authorName', 'Lucía')
+            ->set('body', 'Gracias por orar por mí.')
+            ->call('sendMessage')
+            ->assertHasNoErrors();
+
+        $message = $prayerRequest->messages()->first();
+
+        $this->assertSame('Lucía', $message->author_name);
+        $this->assertSame(MessageAuthorType::Requester, $message->author_type);
+    }
+
+    public function test_authenticated_chat_message_uses_the_account_name(): void
+    {
+        $intercessor = User::factory()->create([
+            'role' => UserRole::Intercessor,
+            'name' => 'Pablo Intercesor',
+        ]);
+        $prayerRequest = PrayerRequest::factory()->create();
+        $prayerRequest->intercessors()->attach($intercessor->id, ['assigned_at' => now()]);
+
+        $this->actingAs($intercessor);
+
+        Livewire::test(PrayerChat::class, [
+            'prayerRequest' => $prayerRequest,
+            'viewerRole' => MessageAuthorType::Intercessor,
+            'viewerUserId' => $intercessor->id,
+            'viewerName' => $intercessor->name,
+        ])
+            ->set('body', 'Estoy orando por vos.')
+            ->call('sendMessage')
+            ->assertHasNoErrors();
+
+        $message = $prayerRequest->messages()->first();
+
+        $this->assertSame('Pablo Intercesor', $message->author_name);
+        $this->assertSame(MessageAuthorType::Intercessor, $message->author_type);
     }
 }

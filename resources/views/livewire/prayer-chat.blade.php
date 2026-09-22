@@ -11,8 +11,9 @@
             @endphp
             <div class="flex {{ $mine ? 'justify-end' : 'justify-start' }}">
                 <div class="max-w-[80%] rounded-lg px-3 py-2 {{ $mine ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-800' }}">
-                    <p class="text-xs font-medium {{ $mine ? 'text-indigo-100' : 'text-gray-500' }} mb-0.5">
-                        {{ $message->author_type->label() }}
+                    <p class="text-xs font-semibold {{ $mine ? 'text-indigo-100' : 'text-gray-600' }} mb-0.5">
+                        {{ $message->author_name ?: $message->author_type->label() }}
+                        <span class="font-normal {{ $mine ? 'text-indigo-200' : 'text-gray-400' }}">· {{ $message->author_type->label() }}</span>
                     </p>
                     <p class="text-sm whitespace-pre-wrap break-words">{{ $message->body }}</p>
                     <p class="text-[10px] mt-1 {{ $mine ? 'text-indigo-200' : 'text-gray-400' }}">
@@ -25,18 +26,39 @@
         @endforelse
     </div>
 
-    <form wire:submit="sendMessage" class="border-t border-gray-100 p-3 flex gap-2">
-        <label for="chat-body-{{ $prayerRequest->id }}" class="sr-only">Mensaje</label>
-        <textarea
-            wire:model="body"
-            id="chat-body-{{ $prayerRequest->id }}"
-            rows="1"
-            class="flex-1 rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder="Escribí un mensaje..."
-        ></textarea>
-        <x-primary-button type="submit">Enviar</x-primary-button>
+    <form wire:submit="sendMessage" class="border-t border-gray-100 p-3 space-y-2">
+        @unless ($this->isAuthenticated())
+            <div>
+                <label for="chat-name-{{ $prayerRequest->id }}" class="sr-only">Tu nombre</label>
+                <input
+                    type="text"
+                    wire:model="authorName"
+                    id="chat-name-{{ $prayerRequest->id }}"
+                    maxlength="120"
+                    required
+                    class="block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="Tu nombre (obligatorio)"
+                >
+                @error('authorName')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+        @endunless
+
+        <div class="flex gap-2">
+            <label for="chat-body-{{ $prayerRequest->id }}" class="sr-only">Mensaje</label>
+            <textarea
+                wire:model="body"
+                id="chat-body-{{ $prayerRequest->id }}"
+                rows="1"
+                class="flex-1 rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                placeholder="Escribí un mensaje..."
+            ></textarea>
+            <x-primary-button type="submit">Enviar</x-primary-button>
+        </div>
+
+        @error('body')
+            <p class="text-xs text-red-600">{{ $message }}</p>
+        @enderror
     </form>
-    @error('body')
-        <p class="text-xs text-red-600 px-3 pb-2">{{ $message }}</p>
-    @enderror
 </div>

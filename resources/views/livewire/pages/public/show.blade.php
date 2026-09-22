@@ -96,6 +96,7 @@ new #[Layout('layouts.guest')] class extends Component
         :prayer-request="$prayerRequest"
         :viewer-role="$this->viewerRole"
         :viewer-user-id="auth()->id()"
+        :viewer-name="auth()->user()?->name"
         :key="'chat-'.$prayerRequest->id"
     />
 </div>

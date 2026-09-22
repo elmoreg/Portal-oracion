@@ -115,6 +115,7 @@ new #[Layout('layouts.app')] class extends Component
                 :prayer-request="$prayerRequest"
                 :viewer-role="\App\Enums\MessageAuthorType::Admin"
                 :viewer-user-id="auth()->id()"
+                :viewer-name="auth()->user()?->name"
                 :key="'chat-'.$prayerRequest->id"
             />
         </div>

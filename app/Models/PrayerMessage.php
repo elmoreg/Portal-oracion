@@ -14,6 +14,7 @@ class PrayerMessage extends Model
     protected $fillable = [
         'author_type',
         'user_id',
+        'author_name',
         'body',
     ];
 
