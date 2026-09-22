@@ -19,7 +19,8 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.3, 8.4, 8.5]
+        # Laravel 13 pulls in Symfony 8.x components that require PHP >= 8.4.1
+        php: [8.4, 8.5]
 
     name: PHP ${{ matrix.php }}
 
