@@ -49,7 +49,7 @@ new #[Layout('layouts.guest')] class extends Component
 <div class="space-y-6">
     <div class="rounded-md bg-amber-50 border border-amber-200 px-4 py-3">
         <p class="text-sm text-amber-800">
-            <strong>Guardá este enlace.</strong> Es la única forma de volver a ver tu petición, su estado y la conversación.
+            <strong>Guarda este enlace.</strong> Es la única forma de volver a ver tu petición, su estado y la conversación.
         </p>
     </div>
 

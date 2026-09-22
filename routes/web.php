@@ -14,10 +14,20 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\TestimonyController;
+
 // Petición pública, anónima: cualquiera puede crear una y luego
 // darle seguimiento con el enlace único que recibe (sin necesidad de cuenta).
 Volt::route('peticion/nueva', 'pages.public.new-request')->name('prayer.create');
 Volt::route('p/{prayerRequest}', 'pages.public.show')->name('prayer.show');
+
+Route::get('articulos', [ArticleController::class, 'index'])->name('articles.index');
+Route::get('articulos/{article:slug}', [ArticleController::class, 'show'])->name('articles.show');
+
+Route::get('testimonios', [TestimonyController::class, 'index'])->name('testimonies.index');
+Route::get('testimonios/nuevo', [TestimonyController::class, 'create'])->name('testimonies.create');
+Route::post('testimonios', [TestimonyController::class, 'store'])->name('testimonies.store');
 
 Route::middleware(['auth', 'verified', 'role:intercessor'])
     ->prefix('orar')
