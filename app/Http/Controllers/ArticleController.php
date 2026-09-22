@@ -15,7 +15,7 @@ class ArticleController extends Controller
         $articles = Article::where('status', 'published')
             ->latest('published_at')
             ->paginate(10);
-            
+
         return view('articles.index', compact('articles'));
     }
 
@@ -43,7 +43,7 @@ class ArticleController extends Controller
         if ($article->status !== 'published') {
             abort(404);
         }
-        
+
         return view('articles.show', compact('article'));
     }
 

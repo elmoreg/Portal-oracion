@@ -5,5 +5,6 @@ use App\Providers\VoltServiceProvider;
 
 return [
     AppServiceProvider::class,
+    AppProvidersEventServiceProvider::class,
     VoltServiceProvider::class,
 ];

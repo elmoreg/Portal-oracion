@@ -8,6 +8,7 @@ use App\Enums\UserRole;
 use App\Models\PrayerRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Livewire\Volt\Volt;
 use Tests\TestCase;
 
@@ -17,11 +18,13 @@ class PrayerRequestFlowTest extends TestCase
 
     public function test_anyone_can_submit_an_anonymous_prayer_request_and_gets_a_unique_token(): void
     {
-        Volt::test('pages.public.new-request')
+        $response = Volt::test('pages.public.new-request')
             ->set('requester_name', 'María')
             ->set('content', 'Por favor oren por mi salud.')
-            ->call('submit')
-            ->assertRedirect();
+            ->call('submit');
+
+        $response->assertRedirect();
+        $response->assertSessionHas('petition_created', true);
 
         $this->assertSame(1, PrayerRequest::count());
 
@@ -31,6 +34,36 @@ class PrayerRequestFlowTest extends TestCase
         $this->assertSame(PrayerRequestStatus::Pending, $prayerRequest->status);
         $this->assertNotEmpty($prayerRequest->public_token);
         $this->assertSame(40, strlen($prayerRequest->public_token));
+
+        // When visiting the show page with the session flash, the encouragement card is shown
+        $showResponse = $this->withSession(['petition_created' => true, 'locale' => 'es'])
+            ->get(route('prayer.show', $prayerRequest));
+
+        $showResponse->assertSee('¡Tu petición ha sido recibida con amor y fe!');
+        $showResponse->assertSee('No estás solo ni sola en este momento');
+        $showResponse->assertSee('FILIPENSES 4:6-7');
+    }
+
+    public function test_encouragement_message_is_localized(): void
+    {
+        Http::fake(['https://api.mymemory.translated.net/*' => Http::response([], 200)]);
+
+        $prayerRequest = PrayerRequest::factory()->create();
+
+        // English
+        $responseEn = $this->withSession(['petition_created' => true, 'locale' => 'en'])
+            ->get(route('prayer.show', $prayerRequest));
+
+        $responseEn->assertSee('Your request has been received with love and faith!');
+        $responseEn->assertSee('You are not alone right now');
+        $responseEn->assertSee('PHILIPPIANS 4:6-7');
+
+        // Portuguese
+        $responsePt = $this->withSession(['petition_created' => true, 'locale' => 'pt'])
+            ->get(route('prayer.show', $prayerRequest));
+
+        $responsePt->assertSee('Seu pedido foi recebido com amor e fé!');
+        $responsePt->assertSee('Você não está sozinho(a) neste momento');
     }
 
     public function test_public_tokens_are_unique(): void

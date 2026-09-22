@@ -78,11 +78,19 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'es'),
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'es'),
 
-    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
+    'faker_locale' => env('APP_FAKER_LOCALE', 'es_ES'),
+
+    'available_locales' => [
+        'es' => ['name' => 'Español', 'native' => 'Español', 'flag' => '🇪🇸', 'dir' => 'ltr'],
+        'en' => ['name' => 'English', 'native' => 'English', 'flag' => '🇺🇸', 'dir' => 'ltr'],
+        'pt' => ['name' => 'Portuguese', 'native' => 'Português', 'flag' => '🇧🇷', 'dir' => 'ltr'],
+        'it' => ['name' => 'Italian', 'native' => 'Italiano', 'flag' => '🇮🇹', 'dir' => 'ltr'],
+        'ar' => ['name' => 'Arabic', 'native' => 'العربية', 'flag' => '🇸🇦', 'dir' => 'rtl'],
+    ],
 
     /*
     |--------------------------------------------------------------------------

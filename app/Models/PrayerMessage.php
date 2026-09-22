@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\MessageAuthorType;
+use App\Jobs\TranslatePrayerContent;
+use App\Models\Concerns\HasTranslatableContent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PrayerMessage extends Model
 {
     use HasFactory;
+    use HasTranslatableContent;
 
     protected $fillable = [
         'author_type',
@@ -21,7 +24,28 @@ class PrayerMessage extends Model
     {
         return [
             'author_type' => MessageAuthorType::class,
+            'translations' => 'array',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::created(function (self $message) {
+            TranslatePrayerContent::dispatch($message);
+        });
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function translatableAttributes(): array
+    {
+        return ['body'];
+    }
+
+    public function getTranslatedBodyAttribute(): ?string
+    {
+        return $this->translated('body');
     }
 
     /**

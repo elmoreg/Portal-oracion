@@ -111,7 +111,7 @@ new #[Layout('layouts.app')] class extends Component
                         <li>
                             <a href="{{ route('admin.prayer-requests.show', $prayerRequest) }}" wire:navigate class="group block p-4 rounded-xl border border-soul-indigo/5 bg-white/50 hover:bg-white hover:border-soul-gold/30 hover:shadow-sm transition-all">
                                 <p class="text-sm text-soul-indigo font-medium line-clamp-1 mb-1 group-hover:text-soul-gold transition-colors">
-                                    {{ $prayerRequest->content }}
+                                    {{ $prayerRequest->translated_content }}
                                 </p>
                                 <div class="flex items-center justify-between text-xs text-soul-accent">
                                     <span>{{ $prayerRequest->created_at->diffForHumans() }}</span>
@@ -130,6 +130,39 @@ new #[Layout('layouts.app')] class extends Component
                     @endforelse
                 </ul>
             </div>
+        </div>
+
+        {{-- Accesos rápidos --}}
+        <div class="grid sm:grid-cols-3 gap-4">
+            <a href="{{ route('admin.prayer-requests.index') }}" wire:navigate class="glass-panel rounded-2xl p-6 group hover:border-soul-gold/30 hover:shadow-sm transition-all">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-soul-accent mb-1">Peticiones</p>
+                        <p class="font-serif text-lg text-soul-indigo group-hover:text-soul-gold transition-colors">Gestionar peticiones</p>
+                    </div>
+                    <svg class="w-5 h-5 text-soul-accent group-hover:text-soul-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </div>
+            </a>
+
+            <a href="{{ route('admin.intercessors.index') }}" wire:navigate class="glass-panel rounded-2xl p-6 group hover:border-soul-gold/30 hover:shadow-sm transition-all">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-soul-accent mb-1">Intercesores</p>
+                        <p class="font-serif text-lg text-soul-indigo group-hover:text-soul-gold transition-colors">Equipo de oración</p>
+                    </div>
+                    <svg class="w-5 h-5 text-soul-accent group-hover:text-soul-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </div>
+            </a>
+
+            <a href="{{ route('admin.users.index') }}" wire:navigate class="glass-panel rounded-2xl p-6 group hover:border-soul-gold/30 hover:shadow-sm transition-all">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-soul-accent mb-1">Usuarios</p>
+                        <p class="font-serif text-lg text-soul-indigo group-hover:text-soul-gold transition-colors">Gestionar cuentas</p>
+                    </div>
+                    <svg class="w-5 h-5 text-soul-accent group-hover:text-soul-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </div>
+            </a>
         </div>
     </div>
 </div>

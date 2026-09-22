@@ -20,52 +20,74 @@ new #[Layout('layouts.guest')] class extends Component
 
         Session::regenerate();
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        $this->redirect(route('dashboard', absolute: false));
     }
 }; ?>
 
 <div>
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/10 text-amber-600 mb-3 font-bold text-lg">
+            ✝
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            {{ __('Ingreso al Panel') }}
+        </h1>
+        <p class="text-xs sm:text-sm text-stone-500 mt-1.5 font-light">
+            {{ __('Acceso para intercesores y administradores del portal.') }}
+        </p>
+    </div>
+
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form wire:submit="login">
+    <form wire:submit="login" class="space-y-5">
         <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="form.email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('form.email')" class="mt-2" />
+            <x-input-label for="email" :value="__('Correo Electrónico')" />
+            <x-text-input wire:model="form.email" id="email" type="email" name="email" required autofocus autocomplete="username" placeholder="tu@correo.com" />
+            <x-input-error :messages="$errors->get('form.email')" class="mt-1" />
         </div>
 
         <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        <div>
+            <div class="flex items-center justify-between mb-1">
+                <x-input-label for="password" :value="__('Contraseña')" />
+                @if (Route::has('password.request'))
+                    <a class="text-xs text-amber-600 hover:text-amber-500 transition-colors font-medium" href="{{ route('password.request') }}" wire:navigate>
+                        {{ __('¿Olvidaste tu contraseña?') }}
+                    </a>
+                @endif
+            </div>
 
-            <x-text-input wire:model="form.password" id="password" class="block mt-1 w-full"
+            <x-text-input wire:model="form.password" id="password"
                             type="password"
                             name="password"
-                            required autocomplete="current-password" />
+                            required autocomplete="current-password" 
+                            placeholder="••••••••" />
 
-            <x-input-error :messages="$errors->get('form.password')" class="mt-2" />
+            <x-input-error :messages="$errors->get('form.password')" class="mt-1" />
         </div>
 
         <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember" class="inline-flex items-center">
-                <input wire:model="form.remember" id="remember" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
+        <div class="flex items-center">
+            <input wire:model="form.remember" id="remember" type="checkbox" class="rounded border-stone-300 text-amber-500 shadow-sm focus:ring-amber-500 w-4 h-4" name="remember">
+            <label for="remember" class="ms-2 text-xs text-stone-600 cursor-pointer">{{ __('Recordar mi sesión') }}</label>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}" wire:navigate>
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
+        <div class="pt-2 space-y-3">
+            <x-primary-button>
+                {{ __('Iniciar Sesión') }}
             </x-primary-button>
+
+            <div class="text-center pt-2">
+                <p class="text-xs text-stone-500">
+                    {{ __('¿Quieres ser intercesor?') }}
+                    <a href="{{ route('register') }}" wire:navigate class="text-amber-600 hover:text-amber-500 font-bold ml-1">
+                        {{ __('Inscríbete aquí') }}
+                    </a>
+                </p>
+            </div>
         </div>
     </form>
 </div>

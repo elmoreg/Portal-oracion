@@ -26,7 +26,7 @@ new #[Layout('layouts.app')] class extends Component
                             {{ $prayerRequest->status->label() }}
                         </span>
                     </div>
-                    <p class="text-sm text-gray-600 mt-2 line-clamp-2">{{ $prayerRequest->content }}</p>
+                    <p class="text-sm text-gray-600 mt-2 line-clamp-2">{{ $prayerRequest->translated_content }}</p>
                     <p class="text-xs text-gray-400 mt-2">
                         {{ $prayerRequest->country_name ?? 'Zona desconocida' }} · asignada {{ $prayerRequest->pivot->assigned_at?->diffForHumans() }}
                     </p>

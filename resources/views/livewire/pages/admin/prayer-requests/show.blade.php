@@ -79,13 +79,13 @@ new #[Layout('layouts.app')] class extends Component
                     · enviada {{ $prayerRequest->created_at->diffForHumans() }}
                 </p>
 
-                <p class="text-gray-700 whitespace-pre-wrap">{{ $prayerRequest->content }}</p>
+                <p class="text-gray-700 whitespace-pre-wrap">{{ $prayerRequest->translated_content }}</p>
 
                 @if ($prayerRequest->is_answered)
                     <div class="rounded-md bg-green-50 border border-green-200 px-4 py-3">
                         <p class="text-sm font-medium text-green-800">Contestada 🙏</p>
                         @if ($prayerRequest->answer_note)
-                            <p class="text-sm text-green-700 mt-1">{{ $prayerRequest->answer_note }}</p>
+                            <p class="text-sm text-green-700 mt-1">{{ $prayerRequest->translated_answer_note }}</p>
                         @endif
                     </div>
                 @endif
@@ -111,12 +111,31 @@ new #[Layout('layouts.app')] class extends Component
                 </div>
             </div>
 
-            <livewire:prayer-chat
-                :prayer-request="$prayerRequest"
-                :viewer-role="\App\Enums\MessageAuthorType::Admin"
-                :viewer-user-id="auth()->id()"
-                :key="'chat-'.$prayerRequest->id"
-            />
+            @if ($prayerRequest->is_public)
+                <div class="bg-white shadow-sm rounded-lg p-6">
+                    <h2 class="font-medium text-gray-800 mb-4">Comentarios Comunitarios</h2>
+                    <div class="space-y-4">
+                        @forelse ($prayerRequest->publicComments as $comment)
+                            <div class="p-3 rounded-lg border border-gray-100 bg-gray-50">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-medium text-sm text-gray-900">{{ $comment->author_name ?: 'Anónimo' }}</span>
+                                    <span class="text-xs text-gray-500">{{ $comment->created_at->diffForHumans() }}</span>
+                                </div>
+                                <p class="text-gray-700 text-sm whitespace-pre-wrap">{{ $comment->translated_body }}</p>
+                            </div>
+                        @empty
+                            <p class="text-sm text-gray-500">Nadie ha dejado un comentario público aún.</p>
+                        @endforelse
+                    </div>
+                </div>
+            @else
+                <livewire:prayer-chat
+                    :prayer-request="$prayerRequest"
+                    :viewer-role="\App\Enums\MessageAuthorType::Admin"
+                    :viewer-user-id="auth()->id()"
+                    :key="'chat-'.$prayerRequest->id"
+                />
+            @endif
         </div>
     </div>
 </div>

@@ -15,7 +15,7 @@ class TestimonyController extends Controller
         $testimonies = Testimony::where('status', 'approved')
             ->latest()
             ->paginate(15);
-            
+
         return view('testimonies.index', compact('testimonies'));
     }
 
@@ -36,12 +36,12 @@ class TestimonyController extends Controller
             'name' => 'required|string|max:255',
             'content' => 'required|string|max:2000',
         ]);
-        
+
         $validated['user_id'] = auth()->id();
         $validated['status'] = 'pending';
-        
+
         Testimony::create($validated);
-        
+
         return redirect()->route('testimonies.index')
             ->with('status', 'Testimonio enviado exitosamente. Pendiente de aprobación.');
     }

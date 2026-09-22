@@ -84,7 +84,7 @@ new #[Layout('layouts.app')] class extends Component
                         @forelse ($this->requests as $prayerRequest)
                             <tr>
                                 <td class="px-4 py-3 max-w-xs">
-                                    <p class="text-gray-700 line-clamp-1">{{ $prayerRequest->content }}</p>
+                                    <p class="text-gray-700 line-clamp-1">{{ $prayerRequest->translated_content }}</p>
                                 </td>
                                 <td class="px-4 py-3 text-gray-500">{{ $prayerRequest->country_name ?? '—' }}</td>
                                 <td class="px-4 py-3">
