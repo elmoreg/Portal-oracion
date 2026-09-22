@@ -15,7 +15,7 @@ new #[Layout('layouts.guest')] class extends Component
     {
         $validated = $this->validate([
             'content' => ['required', 'string', 'min:5', 'max:3000'],
-            'requester_name' => ['nullable', 'string', 'max:120'],
+            'requester_name' => ['required', 'string', 'max:120'],
         ]);
 
         $ip = request()->ip();
@@ -23,7 +23,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         $prayerRequest = PrayerRequest::create([
             'content' => $validated['content'],
-            'requester_name' => $validated['requester_name'] ?: null,
+            'requester_name' => $validated['requester_name'],
             'ip_address' => $ip,
             'country_code' => $location?->countryCode,
             'country_name' => $location?->countryName,
@@ -36,15 +36,15 @@ new #[Layout('layouts.guest')] class extends Component
 <div>
     <h1 class="text-xl font-semibold text-gray-800 mb-1">Compartí tu petición de oración</h1>
     <p class="text-sm text-gray-500 mb-6">
-        Tu petición es anónima: no pedimos tu email ni datos de contacto. Al enviarla vas a recibir un enlace
-        único y secreto para hacerle seguimiento y, si querés, conversar con quien ore por vos. Guardalo bien,
-        es la única forma de volver a tu petición.
+        No pedimos tu email ni datos de contacto: solo tu nombre para poder acompañarte. Al enviarla vas a
+        recibir un enlace único y secreto para hacerle seguimiento y, si querés, conversar con quien ore por
+        vos. Guardalo bien, es la única forma de volver a tu petición.
     </p>
 
     <form wire:submit="submit" class="space-y-4">
         <div>
-            <x-input-label for="requester_name" value="Tu nombre (opcional)" />
-            <x-text-input wire:model="requester_name" id="requester_name" class="block mt-1 w-full" type="text" maxlength="120" placeholder="Podés dejarlo en blanco" />
+            <x-input-label for="requester_name" value="Tu nombre" />
+            <x-text-input wire:model="requester_name" id="requester_name" class="block mt-1 w-full" type="text" maxlength="120" required placeholder="¿Cómo te llamás?" />
             <x-input-error :messages="$errors->get('requester_name')" class="mt-2" />
         </div>
 

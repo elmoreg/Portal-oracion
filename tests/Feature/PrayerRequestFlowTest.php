@@ -35,6 +35,17 @@ class PrayerRequestFlowTest extends TestCase
         $this->assertSame(40, strlen($prayerRequest->public_token));
     }
 
+    public function test_the_name_is_required_when_submitting_a_prayer_request(): void
+    {
+        Volt::test('pages.public.new-request')
+            ->set('requester_name', '')
+            ->set('content', 'Por favor oren por mi salud.')
+            ->call('submit')
+            ->assertHasErrors(['requester_name' => 'required']);
+
+        $this->assertSame(0, PrayerRequest::count());
+    }
+
     public function test_public_tokens_are_unique(): void
     {
         PrayerRequest::factory()->count(20)->create();
