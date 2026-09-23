@@ -33,6 +33,7 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'role' => UserRole::Intercessor,
             'is_active' => true,
+            'country_code' => null,
         ];
     }
 
@@ -43,6 +44,26 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the intercessor is inactive and should not receive assignments.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
+        ]);
+    }
+
+    /**
+     * Set the intercessor's country code for zone-affinity tests.
+     */
+    public function fromCountry(string $countryCode): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'country_code' => $countryCode,
         ]);
     }
 }
