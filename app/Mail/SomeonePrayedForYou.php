@@ -20,7 +20,7 @@ class SomeonePrayedForYou extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Alguien ha orado por tu petición 🙏',
+            subject: 'Alguien ha orado por tu petición',
         );
     }
 

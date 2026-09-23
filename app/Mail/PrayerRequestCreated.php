@@ -20,7 +20,7 @@ class PrayerRequestCreated extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'El enlace a tu petición de oración 🙏',
+            subject: 'El enlace a tu petición de oración',
         );
     }
 
