@@ -37,132 +37,229 @@ new #[Layout('layouts.app')] class extends Component
     }
 }; ?>
 
-<div>
+<div class="space-y-8">
     <x-slot name="header">
-        Panel de administración
+        {{ __('Panel Principal de Administración') }}
     </x-slot>
 
-    <div class="space-y-8">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div class="glass-panel rounded-2xl p-6 relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 w-24 h-24 bg-soul-indigo/5 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
-                <p class="text-sm font-medium text-soul-accent mb-1 relative z-10">Total de peticiones</p>
-                <p class="text-4xl font-serif text-soul-indigo relative z-10">{{ $this->stats['total'] }}</p>
-            </div>
-            
-            <div class="glass-panel rounded-2xl p-6 relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/5 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
-                <div class="flex justify-between items-start mb-1 relative z-10">
-                    <p class="text-sm font-medium text-soul-accent">Sin asignar</p>
-                    <span class="flex h-3 w-3 relative">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
-                    </span>
+    <!-- Stat Cards Grid (TailAdmin Style) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Card 1: Total Peticiones -->
+        <div class="bg-white rounded-2xl p-6 border border-stone-200/80 shadow-xs hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-xl bg-slate-950/5 text-slate-900 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </div>
-                <p class="text-4xl font-serif text-soul-indigo relative z-10">{{ $this->stats['pending'] }}</p>
+                <span class="text-xs font-bold text-stone-500 bg-stone-100 px-2.5 py-1 rounded-full">
+                    {{ __('Histórico') }}
+                </span>
             </div>
-            
-            <div class="glass-panel rounded-2xl p-6 relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
-                <p class="text-sm font-medium text-soul-accent mb-1 relative z-10">En oración</p>
-                <p class="text-4xl font-serif text-soul-indigo relative z-10">{{ $this->stats['praying'] }}</p>
-            </div>
-            
-            <div class="glass-panel rounded-2xl p-6 relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 w-24 h-24 bg-green-500/5 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
-                <p class="text-sm font-medium text-soul-accent mb-1 relative z-10">Contestadas</p>
-                <p class="text-4xl font-serif text-soul-indigo relative z-10">{{ $this->stats['answered'] }}</p>
+            <p class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">{{ __('Total Peticiones') }}</p>
+            <div class="flex items-baseline justify-between">
+                <h3 class="text-3xl font-extrabold text-slate-900">{{ $this->stats['total'] }}</h3>
+                <span class="text-xs text-emerald-600 font-bold flex items-center gap-0.5">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                    {{ __('100% registradas') }}
+                </span>
             </div>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-8">
-            <div class="glass-panel rounded-2xl p-8">
-                <h3 class="font-serif text-xl text-soul-indigo mb-6">Peticiones por zona</h3>
-                <ul class="space-y-4">
-                    @forelse ($this->zones as $zone)
-                        @php
-                            $percentage = $this->stats['total'] > 0 ? ($zone->total / $this->stats['total']) * 100 : 0;
-                        @endphp
-                        <li>
-                            <div class="flex justify-between text-sm text-soul-indigo font-medium mb-1.5">
-                                <span>{{ $zone->country_name }}</span>
-                                <span>{{ $zone->total }}</span>
-                            </div>
-                            <div class="w-full bg-soul-indigo/10 rounded-full h-2">
-                                <div class="bg-soul-gold h-2 rounded-full" style="width: {{ $percentage }}%"></div>
-                            </div>
-                        </li>
-                    @empty
-                        <li class="text-sm text-soul-accent italic text-center py-4">Todavía no hay datos de zona geográfica.</li>
-                    @endforelse
-                </ul>
+        <!-- Card 2: Sin Asignar (Pending) -->
+        <div class="bg-white rounded-2xl p-6 border border-amber-500/30 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-2 h-full bg-amber-500"></div>
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                    {{ __('Por Asignar') }}
+                </span>
+            </div>
+            <p class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">{{ __('Peticiones Pendientes') }}</p>
+            <div class="flex items-baseline justify-between">
+                <h3 class="text-3xl font-extrabold text-slate-900">{{ $this->stats['pending'] }}</h3>
+                <span class="text-xs text-amber-700 font-bold">
+                    {{ __('Requiere atención') }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Card 3: En Oración Activa -->
+        <div class="bg-white rounded-2xl p-6 border border-stone-200/80 shadow-xs hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                </div>
+                <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full">
+                    {{ __('En Proceso') }}
+                </span>
+            </div>
+            <p class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">{{ __('En Oración Activa') }}</p>
+            <div class="flex items-baseline justify-between">
+                <h3 class="text-3xl font-extrabold text-slate-900">{{ $this->stats['praying'] }}</h3>
+                <span class="text-xs text-blue-600 font-bold">
+                    {{ __('Con intercesores') }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Card 4: Contestadas / Testimonios -->
+        <div class="bg-white rounded-2xl p-6 border border-stone-200/80 shadow-xs hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+                    {{ __('Respondidas') }}
+                </span>
+            </div>
+            <p class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">{{ __('Peticiones Contestadas') }}</p>
+            <div class="flex items-baseline justify-between">
+                <h3 class="text-3xl font-extrabold text-slate-900">{{ $this->stats['answered'] }}</h3>
+                <span class="text-xs text-emerald-600 font-bold">
+                    {{ __('Gloria a Dios') }}
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Main 2-Column Section (TailAdmin Widgets) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left: Peticiones por Zona Geográfica (7 cols) -->
+        <div class="lg:col-span-6 bg-white rounded-2xl p-6 sm:p-8 border border-stone-200/80 shadow-xs">
+            <div class="flex items-center justify-between mb-6 border-b border-stone-100 pb-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">{{ __('Distribución por País / Región') }}</h3>
+                    <p class="text-xs text-stone-500">{{ __('Procedencia de las solicitudes registradas') }}</p>
+                </div>
+                <span class="text-xs font-bold text-stone-400">
+                    {{ count($this->zones) }} {{ __('Zonas') }}
+                </span>
             </div>
 
-            <div class="glass-panel rounded-2xl p-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="font-serif text-xl text-soul-indigo">Últimas sin asignar</h3>
-                    <a href="{{ route('admin.prayer-requests.index') }}" wire:navigate class="text-sm font-medium text-soul-gold hover:text-soul-indigo transition-colors flex items-center">
-                        Ver todas
-                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            <div class="space-y-5">
+                @forelse ($this->zones as $zone)
+                    @php
+                        $percentage = $this->stats['total'] > 0 ? round(($zone->total / $this->stats['total']) * 100, 1) : 0;
+                    @endphp
+                    <div>
+                        <div class="flex justify-between text-xs font-bold text-slate-800 mb-1.5">
+                            <span class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                {{ $zone->country_name }}
+                            </span>
+                            <span class="text-stone-500 font-semibold">{{ $zone->total }} {{ __('peticiones') }} ({{ $percentage }}%)</span>
+                        </div>
+                        <div class="w-full bg-stone-100 rounded-full h-2.5 overflow-hidden">
+                            <div class="bg-gradient-to-r from-amber-500 to-amber-600 h-2.5 rounded-full transition-all duration-500" 
+                                 style="width: {{ $percentage }}%"></div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center py-8 text-xs text-stone-400">
+                        {{ __('Aún no hay datos geográficos disponibles.') }}
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Right: Peticiones Recientes Pendientes de Asignar (6 cols) -->
+        <div class="lg:col-span-6 bg-white rounded-2xl p-6 sm:p-8 border border-stone-200/80 shadow-xs flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-6 border-b border-stone-100 pb-4">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">{{ __('Últimas Peticiones Sin Asignar') }}</h3>
+                        <p class="text-xs text-stone-500">{{ __('Peticiones en espera de intercesores') }}</p>
+                    </div>
+                    <a href="{{ route('admin.prayer-requests.index') }}" wire:navigate 
+                       class="text-xs font-bold text-amber-600 hover:text-amber-500 transition-colors inline-flex items-center gap-1">
+                        <span>{{ __('Ver todas') }}</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </a>
                 </div>
-                <ul class="space-y-4">
+
+                <div class="space-y-3">
                     @forelse ($this->recent as $prayerRequest)
-                        <li>
-                            <a href="{{ route('admin.prayer-requests.show', $prayerRequest) }}" wire:navigate class="group block p-4 rounded-xl border border-soul-indigo/5 bg-white/50 hover:bg-white hover:border-soul-gold/30 hover:shadow-sm transition-all">
-                                <p class="text-sm text-soul-indigo font-medium line-clamp-1 mb-1 group-hover:text-soul-gold transition-colors">
-                                    {{ $prayerRequest->translated_content }}
-                                </p>
-                                <div class="flex items-center justify-between text-xs text-soul-accent">
-                                    <span>{{ $prayerRequest->created_at->diffForHumans() }}</span>
-                                    <span>{{ $prayerRequest->country_name ?? 'Zona desconocida' }}</span>
-                                </div>
-                            </a>
-                        </li>
-                    @empty
-                        <li class="text-center py-8">
-                            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-500 mb-3">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"></path></svg>
+                        <a href="{{ route('admin.prayer-requests.show', $prayerRequest) }}" wire:navigate 
+                           class="group block p-4 rounded-xl border border-stone-200/80 hover:border-amber-400 bg-stone-50/50 hover:bg-white hover:shadow-xs transition-all">
+                            <div class="flex items-center justify-between gap-2 mb-1.5">
+                                <span class="text-xs font-bold text-slate-900 group-hover:text-amber-600 transition-colors">
+                                    {{ $prayerRequest->requester_name ?: __('Petición Anónima') }}
+                                </span>
+                                <span class="text-[11px] font-semibold text-stone-400">
+                                    {{ $prayerRequest->created_at->diffForHumans() }}
+                                </span>
                             </div>
-                            <p class="text-sm font-medium text-soul-indigo">Todo al día</p>
-                            <p class="text-xs text-soul-accent mt-1">No hay peticiones pendientes de asignar</p>
-                        </li>
+                            <p class="text-xs text-stone-600 line-clamp-2 italic font-serif leading-relaxed mb-2">
+                                “{{ $prayerRequest->translated_content }}”
+                            </p>
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span class="px-2 py-0.5 rounded bg-stone-200/70 text-stone-600 font-medium">
+                                    {{ $prayerRequest->country_name ?? __('Zona desconocida') }}
+                                </span>
+                                <span class="text-xs font-bold text-amber-600 group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1">
+                                    <span>{{ __('Asignar') }}</span> &rarr;
+                                </span>
+                            </div>
+                        </a>
+                    @empty
+                        <div class="text-center py-10">
+                            <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-2">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <p class="text-xs font-bold text-slate-800">{{ __('Todo al día') }}</p>
+                            <p class="text-[11px] text-stone-400 mt-0.5">{{ __('No hay peticiones pendientes de asignar.') }}</p>
+                        </div>
                     @endforelse
-                </ul>
+                </div>
             </div>
         </div>
 
-        {{-- Accesos rápidos --}}
-        <div class="grid sm:grid-cols-3 gap-4">
-            <a href="{{ route('admin.prayer-requests.index') }}" wire:navigate class="glass-panel rounded-2xl p-6 group hover:border-soul-gold/30 hover:shadow-sm transition-all">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-soul-accent mb-1">Peticiones</p>
-                        <p class="font-serif text-lg text-soul-indigo group-hover:text-soul-gold transition-colors">Gestionar peticiones</p>
-                    </div>
-                    <svg class="w-5 h-5 text-soul-accent group-hover:text-soul-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                </div>
-            </a>
-
-            <a href="{{ route('admin.intercessors.index') }}" wire:navigate class="glass-panel rounded-2xl p-6 group hover:border-soul-gold/30 hover:shadow-sm transition-all">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-soul-accent mb-1">Intercesores</p>
-                        <p class="font-serif text-lg text-soul-indigo group-hover:text-soul-gold transition-colors">Equipo de oración</p>
-                    </div>
-                    <svg class="w-5 h-5 text-soul-accent group-hover:text-soul-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                </div>
-            </a>
-
-            <a href="{{ route('admin.users.index') }}" wire:navigate class="glass-panel rounded-2xl p-6 group hover:border-soul-gold/30 hover:shadow-sm transition-all">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-soul-accent mb-1">Usuarios</p>
-                        <p class="font-serif text-lg text-soul-indigo group-hover:text-soul-gold transition-colors">Gestionar cuentas</p>
-                    </div>
-                    <svg class="w-5 h-5 text-soul-accent group-hover:text-soul-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                </div>
-            </a>
-        </div>
     </div>
+
+    <!-- Quick Access Hub (TailAdmin style) -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        
+        <a href="{{ route('admin.prayer-requests.index') }}" wire:navigate 
+           class="bg-white rounded-2xl p-6 border border-stone-200/80 shadow-xs hover:border-amber-400 hover:shadow-md transition-all group flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">{{ __('Gestión') }}</p>
+                <h4 class="text-base font-bold text-slate-900 group-hover:text-amber-600 transition-colors">{{ __('Todas las Peticiones') }}</h4>
+                <p class="text-xs text-stone-500 mt-0.5">{{ __('Filtra, asigna y da seguimiento') }}</p>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </div>
+        </a>
+
+        <a href="{{ route('admin.intercessors.index') }}" wire:navigate 
+           class="bg-white rounded-2xl p-6 border border-stone-200/80 shadow-xs hover:border-amber-400 hover:shadow-md transition-all group flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">{{ __('Equipo') }}</p>
+                <h4 class="text-base font-bold text-slate-900 group-hover:text-amber-600 transition-colors">{{ __('Equipo de Intercesores') }}</h4>
+                <p class="text-xs text-stone-500 mt-0.5">{{ __('Cargas de trabajo y oración activa') }}</p>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </div>
+        </a>
+
+        <a href="{{ route('admin.users.index') }}" wire:navigate 
+           class="bg-white rounded-2xl p-6 border border-stone-200/80 shadow-xs hover:border-amber-400 hover:shadow-md transition-all group flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">{{ __('Seguridad') }}</p>
+                <h4 class="text-base font-bold text-slate-900 group-hover:text-amber-600 transition-colors">{{ __('Cuentas y Permisos') }}</h4>
+                <p class="text-xs text-stone-500 mt-0.5">{{ __('Administra accesos y roles') }}</p>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </div>
+        </a>
+
+    </div>
+
 </div>

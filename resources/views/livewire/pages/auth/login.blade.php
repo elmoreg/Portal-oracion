@@ -27,10 +27,10 @@ new #[Layout('layouts.guest')] class extends Component
 <div>
     <!-- Header -->
     <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/10 text-amber-600 mb-3 font-bold text-lg">
-            ✝
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/10 text-amber-600 mb-3 shadow-inner">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 3v18M6 9h12"></path></svg>
         </div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+        <h1 class="font-serif text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             {{ __('Ingreso al Panel') }}
         </h1>
         <p class="text-xs sm:text-sm text-stone-500 mt-1.5 font-light">

@@ -1,10 +1,26 @@
 <?php
 
+use App\Enums\PrayerRequestStatus;
 use App\Livewire\Actions\Logout;
+use App\Models\PrayerRequest;
 use Livewire\Volt\Component;
 
 new class extends Component
 {
+    public function getPendingCountProperty(): int
+    {
+        return PrayerRequest::where('status', PrayerRequestStatus::Pending)->count();
+    }
+
+    public function getAssignedCountProperty(): int
+    {
+        if (! auth()->check()) {
+            return 0;
+        }
+
+        return auth()->user()->assignedPrayerRequests()->count();
+    }
+
     /**
      * Log the current user out of the application.
      */
@@ -16,124 +32,166 @@ new class extends Component
     }
 }; ?>
 
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100 shadow-sm">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center gap-2 group">
-                        <div class="w-8 h-8 bg-gradient-to-br from-soul-indigo to-soul-accent rounded-lg flex items-center justify-center shadow-md transform group-hover:scale-105 transition-transform">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v19M5 10h14"></path></svg>
-                        </div>
-                        <span class="font-bold text-lg tracking-tight text-soul-indigo hidden sm:block">Portal</span>
-                    </a>
+<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+       class="fixed inset-y-0 left-0 z-50 w-72 bg-slate-950 text-white flex flex-col justify-between transition-transform duration-300 ease-in-out border-r border-white/10 shadow-2xl">
+    
+    <!-- Top Section: Brand & Navigation -->
+    <div class="flex-1 flex flex-col overflow-y-auto">
+        
+        <!-- Brand / Logo (TailAdmin style) -->
+        <div class="h-20 flex items-center justify-between px-6 border-b border-white/10 shrink-0">
+            <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-lg shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 3v18M6 9h12"></path></svg>
                 </div>
-
-                <!-- Navigation Links -->
-                <div class="hidden space-x-6 sm:-my-px sm:ms-8 sm:flex">
-                    <x-nav-link :href="route('prayer.create')" :active="request()->routeIs('prayer.create')" wire:navigate class="font-medium">
-                        {{ __('Nueva petición') }}
-                    </x-nav-link>
-
-                    @if (auth()->user()->isIntercessor())
-                        <x-nav-link :href="route('intercessor.dashboard')" :active="request()->routeIs('intercessor.*')" wire:navigate class="font-medium">
-                            {{ __('Orar') }}
-                        </x-nav-link>
-                    @endif
-
-                    @if (auth()->user()->isAdmin())
-                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')" wire:navigate class="font-medium">
-                            {{ __('Administración') }}
-                        </x-nav-link>
-                    @endif
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold tracking-wider text-white uppercase group-hover:text-amber-400 transition-colors">
+                        {{ __(config('app.name', 'Portal de Oración')) }}
+                    </span>
+                    <span class="text-[10px] text-amber-400 font-bold uppercase tracking-widest">
+                        {{ auth()->user()->isAdmin() ? __('Panel Administrador') : __('Panel Intercesor') }}
+                    </span>
                 </div>
-            </div>
+            </a>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-3">
-                <x-language-selector variant="light" />
+            <!-- Mobile Close Button -->
+            <button @click="sidebarOpen = false" class="lg:hidden text-stone-400 hover:text-white p-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
 
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
+        <!-- Navigation Menu Groups -->
+        <div class="px-4 py-6 space-y-6">
+            
+            <!-- Group: Administración (if admin) -->
+            @if(auth()->user()->isAdmin())
+                <div>
+                    <h3 class="px-3 text-[11px] font-bold uppercase tracking-[0.2em] text-stone-400 mb-2">
+                        {{ __('Gestión & Control') }}
+                    </h3>
+                    <nav class="space-y-1">
+                        
+                        <!-- Dashboard Link -->
+                        <a href="{{ route('admin.dashboard') }}" wire:navigate 
+                           class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : 'text-stone-300 hover:text-white hover:bg-white/5' }}">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-4 h-4 {{ request()->routeIs('admin.dashboard') ? 'text-slate-950' : 'text-amber-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                                <span>{{ __('Panel Principal') }}</span>
                             </div>
-                        </button>
-                    </x-slot>
+                        </a>
 
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile')" wire:navigate>
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
+                        <!-- Peticiones Link with Badge -->
+                        <a href="{{ route('admin.prayer-requests.index') }}" wire:navigate 
+                           class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 {{ request()->routeIs('admin.prayer-requests.*') ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : 'text-stone-300 hover:text-white hover:bg-white/5' }}">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-4 h-4 {{ request()->routeIs('admin.prayer-requests.*') ? 'text-slate-950' : 'text-amber-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                                <span>{{ __('Peticiones de Oración') }}</span>
+                            </div>
+                            @if($this->pendingCount > 0)
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ request()->routeIs('admin.prayer-requests.*') ? 'bg-slate-950 text-amber-400' : 'bg-amber-500 text-slate-950' }}">
+                                    {{ $this->pendingCount }}
+                                </span>
+                            @endif
+                        </a>
 
-                        <!-- Authentication -->
-                        <button wire:click="logout" class="w-full text-start">
-                            <x-dropdown-link>
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </button>
-                    </x-slot>
-                </x-dropdown>
+                        <!-- Intercessors Link -->
+                        <a href="{{ route('admin.intercessors.index') }}" wire:navigate 
+                           class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 {{ request()->routeIs('admin.intercessors.*') ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : 'text-stone-300 hover:text-white hover:bg-white/5' }}">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-4 h-4 {{ request()->routeIs('admin.intercessors.*') ? 'text-slate-950' : 'text-amber-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                <span>{{ __('Equipo de Intercesores') }}</span>
+                            </div>
+                        </a>
+
+                        <!-- Users Link -->
+                        <a href="{{ route('admin.users.index') }}" wire:navigate 
+                           class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 {{ request()->routeIs('admin.users.*') ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : 'text-stone-300 hover:text-white hover:bg-white/5' }}">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-4 h-4 {{ request()->routeIs('admin.users.*') ? 'text-slate-950' : 'text-amber-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                <span>{{ __('Cuentas & Usuarios') }}</span>
+                            </div>
+                        </a>
+
+                    </nav>
+                </div>
+            @endif
+
+            <!-- Group: Intercesión (if intercessor) -->
+            @if(auth()->user()->isIntercessor())
+                <div>
+                    <h3 class="px-3 text-[11px] font-bold uppercase tracking-[0.2em] text-stone-400 mb-2">
+                        {{ __('Ministerio de Oración') }}
+                    </h3>
+                    <nav class="space-y-1">
+                        
+                        <!-- Intercessor Dashboard -->
+                        <a href="{{ route('intercessor.dashboard') }}" wire:navigate 
+                           class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 {{ request()->routeIs('intercessor.dashboard') ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : 'text-stone-300 hover:text-white hover:bg-white/5' }}">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-4 h-4 {{ request()->routeIs('intercessor.dashboard') ? 'text-slate-950' : 'text-amber-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                                <span>{{ __('Mis Peticiones Asignadas') }}</span>
+                            </div>
+                            @if($this->assignedCount > 0)
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ request()->routeIs('intercessor.dashboard') ? 'bg-slate-950 text-amber-400' : 'bg-amber-500 text-slate-950' }}">
+                                    {{ $this->assignedCount }}
+                                </span>
+                            @endif
+                        </a>
+
+                    </nav>
+                </div>
+            @endif
+
+            <!-- Group: Accesos Rápidos -->
+            <div>
+                <h3 class="px-3 text-[11px] font-bold uppercase tracking-[0.2em] text-stone-400 mb-2">
+                    {{ __('Accesos Rápidos') }}
+                </h3>
+                <nav class="space-y-1">
+                    
+                    <a href="{{ route('prayer.muro') }}" wire:navigate 
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-stone-300 hover:text-white hover:bg-white/5 transition-all">
+                        <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                        <span>{{ __('Muro de Oración') }}</span>
+                    </a>
+
+                    <a href="{{ route('prayer.create') }}" wire:navigate 
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-stone-300 hover:text-white hover:bg-white/5 transition-all">
+                        <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>{{ __('Nueva Petición') }}</span>
+                    </a>
+
+                    <a href="/" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-stone-300 hover:text-white hover:bg-white/5 transition-all">
+                        <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        <span>{{ __('Ir a la Página de Inicio') }}</span>
+                    </a>
+
+                </nav>
             </div>
 
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+        </div>
+
+    </div>
+
+    <!-- Bottom User Section (TailAdmin Style) -->
+    <div class="p-4 border-t border-white/10 shrink-0 bg-slate-900/50">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                    {{ substr(auth()->user()->name, 0, 1) }}
+                </div>
+                <div class="min-w-0">
+                    <p class="text-xs font-bold text-white truncate">{{ auth()->user()->name }}</p>
+                    <p class="text-[11px] text-stone-400 truncate">{{ auth()->user()->email }}</p>
+                </div>
             </div>
+
+            <button wire:click="logout" 
+                    title="{{ __('Cerrar Sesión') }}"
+                    class="p-2 text-stone-400 hover:text-red-400 hover:bg-white/5 rounded-lg transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            </button>
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('prayer.create')" :active="request()->routeIs('prayer.create')" wire:navigate>
-                {{ __('Nueva petición') }}
-            </x-responsive-nav-link>
-
-            @if (auth()->user()->isIntercessor())
-                <x-responsive-nav-link :href="route('intercessor.dashboard')" :active="request()->routeIs('intercessor.*')" wire:navigate>
-                    {{ __('Orar') }}
-                </x-responsive-nav-link>
-            @endif
-
-            @if (auth()->user()->isAdmin())
-                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')" wire:navigate>
-                    {{ __('Administración') }}
-                </x-responsive-nav-link>
-            @endif
-        </div>
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800" x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
-                <div class="font-medium text-sm text-gray-500">{{ auth()->user()->email }}</div>
-            </div>
-
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile')" wire:navigate>
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
-                <button wire:click="logout" class="w-full text-start">
-                    <x-responsive-nav-link>
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </button>
-            </div>
-        </div>
-    </div>
-</nav>
+</aside>

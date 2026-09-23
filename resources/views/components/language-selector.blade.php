@@ -22,7 +22,7 @@
             aria-haspopup="true">
         <span class="text-sm leading-none">{{ $current['flag'] }}</span>
         <span class="font-medium">{{ $current['native'] }}</span>
-        <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-3.5 h-3.5 transition-transform duration-200 text-stone-400" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
         </svg>
     </button>
@@ -44,7 +44,7 @@
                     <span>{{ $info['native'] }}</span>
                 </div>
                 @if($currentLocale === $code)
-                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                     </svg>
                 @endif

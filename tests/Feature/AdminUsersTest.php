@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Volt\Volt;
 use Tests\TestCase;
 
@@ -173,6 +174,24 @@ class AdminUsersTest extends TestCase
         $user->refresh();
         $this->assertEquals('Nombre Editado', $user->name);
         $this->assertEquals(UserRole::Admin, $user->role);
+    }
+
+    public function test_admin_can_update_user_password(): void
+    {
+        $admin = $this->createAdmin();
+        $user = User::factory()->create();
+
+        Volt::actingAs($admin)
+            ->test('pages.admin.users.index')
+            ->call('openEditModal', $user->id)
+            ->set('formName', $user->name)
+            ->set('formEmail', $user->email)
+            ->set('formRole', $user->role->value)
+            ->set('formPassword', 'newpassword123')
+            ->set('formPassword_confirmation', 'newpassword123')
+            ->call('saveUser');
+
+        $this->assertTrue(Hash::check('newpassword123', $user->fresh()->password));
     }
 
     public function test_admin_can_toggle_user_active_status(): void
