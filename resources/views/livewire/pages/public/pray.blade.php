@@ -33,12 +33,14 @@ new #[Layout('layouts.public')] class extends Component {
     public function submitComment(): void
     {
         $this->validate([
-            'comment_author' => ['nullable', 'string', 'max:100'],
+            'comment_author' => ['required', 'string', 'max:100'],
             'comment_body' => ['required', 'string', 'min:3', 'max:1000'],
+        ], [
+            'comment_author.required' => __('Por favor, escribe tu nombre.'),
         ]);
 
         $this->prayerRequest->publicComments()->create([
-            'author_name' => $this->comment_author ?: null,
+            'author_name' => trim($this->comment_author),
             'body' => $this->comment_body,
         ]);
 
@@ -109,8 +111,8 @@ new #[Layout('layouts.public')] class extends Component {
                 <form wire:submit="submitComment" class="mb-8 bg-stone-50 p-5 rounded-xl border border-stone-200">
                     <div class="space-y-4">
                         <div>
-                            <x-input-label for="comment_author" :value="__('Tu nombre (Opcional)')" />
-                            <x-text-input wire:model="comment_author" id="comment_author" type="text" class="block w-full text-sm py-2" placeholder="Deja tu nombre o responde anónimamente" />
+                            <x-input-label for="comment_author" :value="__('Tu nombre')" />
+                            <x-text-input wire:model="comment_author" id="comment_author" type="text" required maxlength="100" class="block w-full text-sm py-2" :placeholder="__('Escribe tu nombre')" />
                             <x-input-error :messages="$errors->get('comment_author')" class="mt-1" />
                         </div>
                         <div>

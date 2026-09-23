@@ -171,4 +171,33 @@ class PrayerRequestFlowTest extends TestCase
         $this->assertSame(1, $prayerRequestA->messages()->count());
         $this->assertSame(0, $prayerRequestB->messages()->count());
     }
+
+    public function test_a_public_comment_requires_a_name(): void
+    {
+        $prayerRequest = PrayerRequest::factory()->create(['is_public' => true]);
+
+        Volt::test('pages.public.pray', ['prayerRequest' => $prayerRequest])
+            ->set('comment_author', '')
+            ->set('comment_body', 'Estoy orando por ti.')
+            ->call('submitComment')
+            ->assertHasErrors(['comment_author' => 'required']);
+
+        $this->assertSame(0, $prayerRequest->publicComments()->count());
+    }
+
+    public function test_a_public_comment_stores_the_author_name(): void
+    {
+        $prayerRequest = PrayerRequest::factory()->create(['is_public' => true]);
+
+        Volt::test('pages.public.pray', ['prayerRequest' => $prayerRequest])
+            ->set('comment_author', 'Lucía')
+            ->set('comment_body', 'Estoy orando por ti.')
+            ->call('submitComment')
+            ->assertHasNoErrors();
+
+        $comment = $prayerRequest->publicComments()->first();
+
+        $this->assertNotNull($comment);
+        $this->assertSame('Lucía', $comment->author_name);
+    }
 }
