@@ -5,7 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ __(config('app.name', 'Portal de Oración')) }}</title>
+    {{-- Metadatos para compartir en redes; cada página puede sobreescribirlos con @push('meta') --}}
+    @if (trim($__env->yieldPushContent('meta')))
+        @stack('meta')
+    @else
+        <title>{{ __('Portal de Oración') }}</title>
+        <meta property="og:title" content="{{ __('Portal de Oración') }}">
+        <meta property="og:description" content="{{ __('Un espacio de fe donde tu petición es acompañada en oración.') }}">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta name="twitter:card" content="summary_large_image">
+    @endif
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles

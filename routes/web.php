@@ -11,7 +11,14 @@ Route::get('/', function () {
         ->take(12)
         ->get();
 
-    return view('welcome', compact('publicRequests'));
+    $featuredRequest = PrayerRequest::where('is_public', true)
+        ->whereHas('publicComments')
+        ->withCount('publicComments')
+        ->orderByDesc('public_comments_count')
+        ->with(['publicComments' => fn ($q) => $q->latest()->limit(3)])
+        ->first();
+
+    return view('welcome', compact('publicRequests', 'featuredRequest'));
 })->name('home');
 
 Route::get('dashboard', DashboardRedirectController::class)
@@ -39,6 +46,7 @@ Route::view('profile', 'profile')
     ->name('profile');
 
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\PrayerShareImageController;
 use App\Http\Controllers\TestimonyController;
 
 // Petición pública, anónima: cualquiera puede crear una y luego
@@ -47,6 +55,10 @@ Volt::route('muro', 'pages.public.muro')->name('prayer.muro');
 Volt::route('muro/orar/{prayerRequest}', 'pages.public.pray')->name('prayer.pray');
 Volt::route('peticion/nueva', 'pages.public.new-request')->name('prayer.create');
 Volt::route('p/{prayerRequest}', 'pages.public.show')->name('prayer.show');
+
+// Imagen de vista previa para compartir en redes sociales (og:image).
+Route::get('muro/orar/{prayerRequest}/imagen.png', PrayerShareImageController::class)
+    ->name('prayer.share-image');
 
 Route::get('articulos', [ArticleController::class, 'index'])->name('articles.index');
 Route::get('articulos/{article:slug}', [ArticleController::class, 'show'])->name('articles.show');
