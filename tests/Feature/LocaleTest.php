@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\PrayerComment;
+use App\Models\PrayerRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -26,6 +28,13 @@ class LocaleTest extends TestCase
 
     public function test_can_switch_locale_to_english(): void
     {
+        $prayer = PrayerRequest::factory()->create(['is_public' => true]);
+        PrayerComment::create([
+            'prayer_request_id' => $prayer->id,
+            'author_name' => 'John',
+            'body' => 'I am praying for you!',
+        ]);
+
         $response = $this->get(route('locale.switch', 'en'));
 
         $response->assertRedirect();
@@ -35,7 +44,8 @@ class LocaleTest extends TestCase
         $homeResponse->assertStatus(200);
         $homeResponse->assertSee('Prayer Portal');
         $homeResponse->assertSee('Request Prayer Now');
-        $homeResponse->assertSee('I ask for prayer for the speedy recovery');
+        $homeResponse->assertSee('Community Interaction');
+        $homeResponse->assertSee('What the community is saying');
         $homeResponse->assertSee('dir="ltr"', false);
     }
 

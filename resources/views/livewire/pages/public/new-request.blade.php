@@ -61,7 +61,7 @@ new #[Layout('layouts.guest')] class extends Component
             <span class="h-px w-6 bg-amber-500"></span>
         </div>
 
-        <h1 class="font-cinzel text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+        <h1 class="font-serif text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             {{ __('Comparte tu Petición de Oración') }}
         </h1>
         

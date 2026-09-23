@@ -7,11 +7,19 @@ use Livewire\Volt\Component;
 new #[Layout('layouts.public')] class extends Component {
     public function with(): array
     {
+        $featuredRequest = PrayerRequest::where('is_public', true)
+            ->whereHas('publicComments')
+            ->withCount('publicComments')
+            ->orderByDesc('public_comments_count')
+            ->with(['publicComments' => fn ($q) => $q->latest()->limit(3)])
+            ->first();
+
         return [
             'requests' => PrayerRequest::where('is_public', true)
                 ->withCount('publicComments')
                 ->latest()
                 ->paginate(12),
+            'featuredRequest' => $featuredRequest,
         ];
     }
 }; ?>
@@ -40,9 +48,87 @@ new #[Layout('layouts.public')] class extends Component {
         </div>
     </div>
 
+    {{-- Banner: Lo que la comunidad está comentando --}}
+    @if($featuredRequest)
+    <div class="max-w-7xl mx-auto mb-10">
+        <div class="bg-slate-950 rounded-2xl overflow-hidden shadow-2xl border border-white/5 relative">
+            <div class="absolute top-0 right-0 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 p-6 sm:p-8">
+                {{-- Header --}}
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center font-bold text-sm shrink-0">
+                            {{ substr($featuredRequest->requester_name ?: 'A', 0, 1) }}
+                        </div>
+                        <div>
+                            <p class="text-white font-bold text-sm">
+                                {{ $featuredRequest->requester_name ?: __('Petición Anónima') }}
+                            </p>
+                            <p class="text-stone-400 text-xs mt-0.5">
+                                {{ $featuredRequest->country_name ?: __('Comunidad') }} · {{ $featuredRequest->created_at->diffForHumans() }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-400 text-xs font-bold uppercase tracking-wider">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            {{ $featuredRequest->public_comments_count }} {{ __('comentarios') }}
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-stone-300 text-xs font-medium">
+                            <svg class="w-3.5 h-3.5 text-rose-400" fill="currentColor" viewBox="0 0 20 20"><path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"></path></svg>
+                            {{ $featuredRequest->prayed_count }} {{ __('oraciones') }}
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-stone-400 text-[11px] font-semibold uppercase tracking-wider">
+                            {{ __('Lo más comentado') }}
+                        </span>
+                    </div>
+                </div>
+
+                {{-- Prayer text --}}
+                <blockquote class="font-serif italic text-stone-200 text-base sm:text-lg leading-relaxed border-l-2 border-amber-500 pl-4 mb-6">
+                    "{{ $featuredRequest->translated_content }}"
+                </blockquote>
+
+                {{-- Comments preview --}}
+                @if($featuredRequest->publicComments->isNotEmpty())
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                    @foreach($featuredRequest->publicComments as $comment)
+                    <div class="bg-white/5 border border-white/10 rounded-xl p-3 flex gap-2">
+                        <div class="w-7 h-7 rounded-full bg-white/10 text-white/60 flex items-center justify-center font-bold text-[11px] shrink-0 border border-white/10">
+                            {{ substr($comment->author_name ?: 'A', 0, 1) }}
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-[11px] font-bold text-amber-400 mb-0.5 truncate">{{ $comment->author_name ?: __('Anónimo') }}</p>
+                            <p class="text-stone-300 text-xs leading-relaxed line-clamp-3">{{ $comment->translated_body }}</p>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @endif
+
+                {{-- CTAs --}}
+                <div class="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-white/10">
+                    <a href="{{ route('prayer.pray', $featuredRequest) }}#comments" wire:navigate
+                       class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-widest transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                        {{ __('Dejar un comentario') }}
+                    </a>
+                    <a href="{{ route('prayer.pray', $featuredRequest) }}" wire:navigate
+                       class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded border border-white/20 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-widest transition-all">
+                        <svg class="w-4 h-4 text-rose-400" fill="currentColor" viewBox="0 0 20 20"><path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"></path></svg>
+                        {{ __('Orar por esta petición') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto text-start">
         @forelse($requests as $request)
+
             <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border-t-4 border-amber-500 border-x border-b border-stone-200 p-6 flex flex-col justify-between hover:-translate-y-1">
                 <div>
                     <div class="flex items-center justify-between gap-2 mb-4 border-b border-stone-100 pb-3">

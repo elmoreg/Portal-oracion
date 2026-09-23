@@ -76,7 +76,7 @@ new #[Layout('layouts.guest')] class extends Component
                             {{ __('Petición Registrada con Éxito') }}
                         </span>
                     </div>
-                    <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
+                    <h2 class="font-serif text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
                         {{ __('¡Tu petición ha sido recibida con amor y fe!') }}
                     </h2>
                 </div>
@@ -125,8 +125,9 @@ new #[Layout('layouts.guest')] class extends Component
     @if (empty($prayerRequest->email) && $this->viewerRole === MessageAuthorType::Requester)
         @if ($emailSent)
             <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4 mb-6">
-                <p class="text-sm font-bold text-emerald-800 flex items-center gap-1.5">
-                    <span>✅</span> {{ __('¡Enlace enviado correctamente a tu correo!') }}
+                <p class="text-sm font-bold text-emerald-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>{{ __('¡Enlace enviado correctamente a tu correo!') }}</span>
                 </p>
             </div>
         @else
@@ -172,8 +173,9 @@ new #[Layout('layouts.guest')] class extends Component
     <!-- Answered State or Action -->
     @if ($prayerRequest->is_answered)
         <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
-            <p class="text-sm font-bold text-emerald-800 flex items-center gap-1.5">
-                <span>🙏</span> {{ __('Esta petición fue marcada como respondida / contestada') }}
+            <p class="text-sm font-bold text-emerald-800 flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>{{ __('Esta petición fue marcada como respondida / contestada') }}</span>
             </p>
             @if ($prayerRequest->answer_note)
                 <p class="text-xs sm:text-sm text-emerald-700 mt-2 whitespace-pre-wrap leading-relaxed">

@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ __(config('app.name', 'Portal de Oración')) }} | {{ __('Unidos en Fe y Oración') }}</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -235,8 +239,8 @@
                     
                     <!-- Floating Ministry Badge -->
                     <div class="absolute -bottom-6 left-6 rtl:left-auto rtl:right-6 z-20 bg-slate-900 text-white p-5 rounded-xl shadow-xl border border-white/10 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-xl">
-                            ✝
+                        <div class="w-12 h-12 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 3v18M6 9h12"></path></svg>
                         </div>
                         <div>
                             <p class="text-xs text-amber-400 font-bold uppercase tracking-wider">{{ __('Compromiso de Fe') }}</p>
@@ -498,8 +502,111 @@
         </div>
     </section>
 
-    <!-- Main Action Cards (NewLife Services / Ministry Cards Style) -->
+    {{-- Sección "Lo que la comunidad está comentando" --}}
+    @if($featuredRequest)
+    <section class="py-20 lg:py-28 bg-white border-t border-stone-200 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            {{-- Section Header --}}
+            <div class="text-center max-w-2xl mx-auto mb-14">
+                <div class="inline-flex items-center justify-center gap-2 mb-3">
+                    <span class="h-px w-8 bg-amber-500"></span>
+                    <span class="text-amber-600 font-bold tracking-[0.2em] uppercase text-xs">{{ __('Interacción Comunitaria') }}</span>
+                    <span class="h-px w-8 bg-amber-500"></span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight leading-tight">
+                    {{ __('Lo que la comunidad está comentando') }}
+                </h2>
+                <p class="text-slate-500 text-base mt-4 font-light">
+                    {{ __('Esta petición ha generado un gran movimiento de fe. Únete a la conversación.') }}
+                </p>
+            </div>
+
+            {{-- Featured Card --}}
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-slate-950 rounded-2xl overflow-hidden shadow-2xl border border-white/5 relative">
+
+                    {{-- Ambient glow --}}
+                    <div class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -z-0"></div>
+
+                    <div class="relative z-10 p-8 sm:p-12">
+
+                        {{-- Top: Badge + Meta --}}
+                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center font-bold text-sm shrink-0">
+                                    {{ substr($featuredRequest->requester_name ?: 'A', 0, 1) }}
+                                </div>
+                                <div>
+                                    <p class="text-white font-bold text-sm leading-tight">
+                                        {{ $featuredRequest->requester_name ?: __('Petición Anónima') }}
+                                    </p>
+                                    <p class="text-stone-400 text-xs mt-0.5">
+                                        {{ $featuredRequest->country_name ?: __('Comunidad') }} · {{ $featuredRequest->created_at->diffForHumans() }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-400 text-xs font-bold uppercase tracking-wider">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                    {{ $featuredRequest->public_comments_count }} {{ __('comentarios') }}
+                                </span>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-stone-300 text-xs font-medium">
+                                    <svg class="w-3.5 h-3.5 text-rose-400" fill="currentColor" viewBox="0 0 20 20"><path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"></path></svg>
+                                    {{ $featuredRequest->prayed_count }} {{ __('oraciones') }}
+                                </span>
+                            </div>
+                        </div>
+
+                        {{-- Prayer text --}}
+                        <blockquote class="font-serif italic text-stone-200 text-lg sm:text-xl leading-relaxed border-l-2 border-amber-500 pl-5 mb-10">
+                            "{{ $featuredRequest->translated_content }}"
+                        </blockquote>
+
+                        {{-- Comments preview --}}
+                        @if($featuredRequest->publicComments->isNotEmpty())
+                        <div class="space-y-4 mb-10">
+                            <p class="text-xs uppercase tracking-widest font-bold text-amber-400/80 mb-4">{{ __('Últimos comentarios') }}</p>
+                            @foreach($featuredRequest->publicComments as $comment)
+                            <div class="flex gap-3">
+                                <div class="w-8 h-8 rounded-full bg-white/10 text-white/70 flex items-center justify-center font-bold text-xs shrink-0 border border-white/10">
+                                    {{ substr($comment->author_name ?: 'A', 0, 1) }}
+                                </div>
+                                <div class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3">
+                                    <p class="text-xs font-bold text-amber-400 mb-1">{{ $comment->author_name ?: __('Anónimo') }}</p>
+                                    <p class="text-stone-300 text-sm leading-relaxed">{{ $comment->translated_body }}</p>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        @endif
+
+                        {{-- CTA --}}
+                        <div class="flex flex-col sm:flex-row items-center gap-4 pt-6 border-t border-white/10">
+                            <a href="{{ route('prayer.pray', $featuredRequest) }}#comments" wire:navigate
+                               class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 hover:-translate-y-0.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                <span>{{ __('Dejar un comentario') }}</span>
+                            </a>
+                            <a href="{{ route('prayer.pray', $featuredRequest) }}" wire:navigate
+                               class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded border border-white/20 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-widest transition-all hover:-translate-y-0.5">
+                                <svg class="w-4 h-4 text-rose-400" fill="currentColor" viewBox="0 0 20 20"><path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"></path></svg>
+                                <span>{{ __('Orar por esta petición') }}</span>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    @endif
+
+    {{-- Main Action Cards (NewLife Services / Ministry Cards Style) --}}
     <section id="como-funciona" class="py-20 lg:py-28 bg-stone-100/80 border-t border-stone-200">
+
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <!-- Section Title -->
@@ -623,8 +730,8 @@
                 <!-- Col 1: Brand & Message -->
                 <div class="md:col-span-2 space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full bg-amber-500 flex items-center justify-center text-slate-950 font-bold">
-                            ✝
+                        <div class="w-9 h-9 rounded-full bg-amber-500 flex items-center justify-center text-slate-950">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 3v18M6 9h12"></path></svg>
                         </div>
                         <span class="tracking-wider text-lg font-bold text-white uppercase">
                             {{ __('Portal de Oración') }}
